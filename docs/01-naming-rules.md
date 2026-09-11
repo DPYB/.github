@@ -11,10 +11,13 @@
 | 조직 공용 | (접두사 없음) | `.github` |
 
 ### 확정된 DPYB 레포 목록
-- `backend-auth-api`
-- `backend-core-api`
-- `backend-ai-agent`
-- `frontend-reader-web`
+frontend
+  - `frontend-reader-web`
+backend
+  - `backend-auth-api`
+  - `backend-core-api`
+  - `backend-record-api`
+  - `backend-ai-agent`
 
 ## 브랜치 이름
 
