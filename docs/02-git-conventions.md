@@ -1,55 +1,61 @@
-# 01. 네이밍 규칙
+# 02. Git 컨벤션
 
-## 레포지토리 이름
+## 브랜치 전략 (`develop` 기반)
 
-`{역할}-{서비스명}` 형태의 **kebab-case**를 사용한다.
-
-| 역할 | 접두사 | 예시 |
-|---|---|---|
-| 백엔드 서비스 | `backend-` | `backend-auth-api`, `backend-core-api`, `backend-ai-agent` |
-| 프론트엔드 | `frontend-` | `frontend-reader-web` |
-| 조직 공용 | (접두사 없음) | `.github` |
-
-### 확정된 DPYB 레포 목록
-- `backend-auth-api`
-- `backend-core-api`
-- `backend-ai-agent`
-- `frontend-reader-web`
-
-## 브랜치 이름
-
-`{type}/{한글-설명}` 형태. `type`은 [02-git-conventions.md](./02-git-conventions.md)의 커밋 타입과 동일한 세트를 사용하고, 지라 같은 티켓 관리 도구를 쓰지 않으므로 설명 부분은 한글로 작성한다.
+지라 등 티켓 관리 도구를 쓰지 않아 브랜치명에 티켓 번호가 없다. 대신 `develop` 브랜치를 두고 평소 작업은 여기로 모으는 구조를 사용한다.
 
 ```
-feature/페르소나-핸드오프-그래프
-fix/스크랩벡터-널체크
-chore/pr템플릿-정리
+main            # 프로덕션 — 배포 브랜치
+ └─ develop      # 통합 브랜치 — 평소 작업은 이곳으로 PR
+     ├─ feature/*   # 신규 기능
+     ├─ fix/*       # 버그 수정
+     ├─ chore/*     # 빌드/설정/문서 등 비기능 변경
+     └─ refactor/*  # 동작 변경 없는 코드 개선
 ```
 
-## 코드 내부 네이밍 (언어별)
+- 브랜치명: `타입/한글-설명` (예: `feature/페르소나-핸드오프-그래프`, `fix/스크랩벡터-널체크`, `chore/pr템플릿-정리`)
+- 평소 작업 PR은 `develop`을 대상으로 연다.
+- 배포할 준비가 되면 `develop` → `main`으로 승격 PR을 연다. 배포는 `main`에 머지되는 시점에 자동 트리거되는 것을 기본으로 한다 (레포별 CI/CD 문서 참고).
+- `main`, `develop` 모두 직접 push 금지 — 반드시 PR + 리뷰(또는 self-review)를 거친다.
 
-### Python (`backend-*`)
-| 대상 | 컨벤션 | 예시 |
-|---|---|---|
-| 변수, 함수 | `snake_case` | `search_scrap_memory()` |
-| 클래스 | `PascalCase` | `PersonaHandoffState` |
-| 상수 | `UPPER_SNAKE_CASE` | `MAX_SCRAP_RESULTS` |
-| 모듈/파일명 | `snake_case.py` | `rag_tool.py` |
-
-### TypeScript / React (`frontend-reader-web`)
-| 대상 | 컨벤션 | 예시 |
-|---|---|---|
-| 변수, 함수 | `camelCase` | `fetchScrapList()` |
-| 컴포넌트, 타입, 인터페이스 | `PascalCase` | `BookshelfCard`, `ScrapItem` |
-| 상수 | `UPPER_SNAKE_CASE` | `MAX_UPLOAD_SIZE` |
-| 컴포넌트 파일명 | `PascalCase.tsx` | `BookshelfCard.tsx` |
-| 훅 파일명 | `useCamelCase.ts` | `useScrapList.ts` |
-
-## 환경 변수
-
-모든 레포 공통으로 `UPPER_SNAKE_CASE`, 서비스 접두사를 붙인다.
+## 커밋 메시지
 
 ```
-AI_AGENT_GEMINI_API_KEY=
-CORE_API_DATABASE_URL=
+<타입>[적용 범위(선택)]: <제목(요약)>
+
+[본문(선택)]
+[꼬리말(선택)]
 ```
+
+### 타입 목록
+| 타입 | 설명 |
+|---|---|
+| `feat` | 새로운 기능 |
+| `fix` | 버그 수정 |
+| `refactor` | 동작 변경 없는 코드 구조 개선 |
+| `chore` | 빌드, 설정, 의존성, 문서 등 |
+| `test` | 테스트 추가/수정 |
+| `docs` | 문서만 변경 |
+| `style` | 코드 포맷팅 등 동작에 영향 없는 변경 |
+
+### 규칙
+- 제목은 **국문 명사형 어미**로 작성하고 50자 이내, 마침표는 붙이지 않는다. (예: "핸드오프 요약 노드 추가")
+- 적용 범위(scope)는 서비스/도메인 단위로 작성한다: `agent`, `rag`, `persona`, `auth`, `bookshelf` 등
+- Jira 티켓 번호는 쓰지 않는다.
+
+### 예시
+```
+feat[persona]: 핸드오프 요약 노드 추가
+
+기존 대화 톤을 제거하고 팩트만 다음 페르소나에게 전달하는
+summarizer_node를 LangGraph 워크플로우에 추가.
+
+Closes #12
+```
+
+## PR 규칙
+
+- 제목도 커밋 메시지와 동일한 `타입[적용 범위]: 제목` 형식을 따른다.
+- 1 PR = 1 목적을 기본 원칙으로 하되, AI 에이전트로 큰 단위 작업을 한 경우 PR 설명에 `.harness/PLAN.md` 요약을 포함한다 ([03-vibe-coding-harness.md](./03-vibe-coding-harness.md) 참고).
+- 리뷰어가 없는 개인 작업이어도 PR 템플릿의 체크리스트는 생략하지 않는다.
+- 평소 PR은 `develop`, 배포용 승격 PR만 `main`을 대상으로 한다.
