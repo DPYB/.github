@@ -11,9 +11,9 @@
 | 조직 공용 | (접두사 없음) | `.github` |
 
 ### 확정된 DPYB 레포 목록
-frontend
+- frontend
   - `frontend-reader-web`
-backend
+- backend
   - `backend-auth-api`
   - `backend-core-api`
   - `backend-record-api`
