@@ -12,8 +12,7 @@ DPYB는 독서 중 남긴 문장과 메모를 개인화된 AI 사서와 함께 �
 | [`frontend-reader-web`](https://github.com/DPYB/frontend-reader-web) | 독자용 웹 & PWA |
 | [`backend-auth-api`](https://github.com/DPYB/backend-auth-api) | 인증/인가 (로그인, JWT) |
 | [`backend-core-api`](https://github.com/DPYB/backend-core-api) | 핵심 비즈니스 로직 (회원, 책장, 스크랩 등 RDBMS CRUD) |
-| [`backend-record-api`](https://github.com/DPYB/backend-record-api) | {용도 확인 필요} |
-| [`backend-ai-agent`](https://github.com/DPYB/backend-ai-agent) | AI 사서 & 개인화 RAG (LangGraph, Supabase pgvector) |
+| [`backend-ai-agent`](https://github.com/DPYB/backend-ai-agent) | AI 사서 & 개인화 RAG (LangGraph, Supabase pgvector) + isbn바코드스캔, 문장스크랩ocr |
 
 모든 백엔드 레포는 Python + FastAPI로 통일되어 있습니다.
 
