@@ -14,4 +14,6 @@ DPYB 조직의 모든 레포에 공통으로 적용되는 개발 규칙 모음�
 ## 이 레포가 자동으로 적용하는 것
 
 - **PR 템플릿**: 자체 `pull_request_template.md`가 없는 레포는 [.github](./pull_request_template.md)을 자동으로 사용합니다.
+- **기여 가이드 / 보안 정책**: [`.github/CONTRIBUTING.md`](./.github/CONTRIBUTING.md), [`.github/SECURITY.md`](./.github/SECURITY.md)도 자체 파일이 없는 레포에 기본값으로 적용됩니다.
 - **조직 프로필**: [`profile/README.md`](./profile/README.md)가 github.com/DPYB 조직 페이지에 표시됩니다.
+- **워크플로우 템플릿** (자동 적용 아님, 수동 선택): [`workflow-templates/`](./workflow-templates/)에 있는 워크플로우는 각 레포의 Actions 탭 → New workflow에서 "Configure"를 눌러야 추가됩니다.
