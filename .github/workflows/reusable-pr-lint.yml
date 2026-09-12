@@ -1,0 +1,122 @@
+name: Reusable PR & Commit Linter
+
+on:
+  workflow_call:
+    inputs:
+      check-pr-title:
+        description: "Whether to validate PR title convention"
+        required: false
+        type: boolean
+        default: true
+      check-branch-name:
+        description: "Whether to validate branch name convention"
+        required: false
+        type: boolean
+        default: true
+      check-commits:
+        description: "Whether to validate commit message conventions"
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  validate:
+    name: Validate PR & Commit Conventions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate Conventions
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          BRANCH_NAME: ${{ github.head_ref }}
+          BASE_REF: ${{ github.base_ref }}
+          CHECK_PR_TITLE: ${{ inputs.check-pr-title }}
+          CHECK_BRANCH: ${{ inputs.check-branch-name }}
+          CHECK_COMMITS: ${{ inputs.check-commits }}
+        run: |
+          python3 - << 'EOF'
+          import os
+          import re
+          import subprocess
+          import sys
+
+          pr_title = os.environ.get("PR_TITLE", "").strip()
+          branch_name = os.environ.get("BRANCH_NAME", "").strip()
+          base_ref = os.environ.get("BASE_REF", "").strip()
+          check_pr_title = os.environ.get("CHECK_PR_TITLE", "true").lower() == "true"
+          check_branch = os.environ.get("CHECK_BRANCH", "true").lower() == "true"
+          check_commits = os.environ.get("CHECK_COMMITS", "true").lower() == "true"
+
+          CONVENTION_LINK = "https://github.com/DPYB/.github/blob/main/docs/02-git-conventions.md"
+          TITLE_PATTERN = r"^(feat|fix|refactor|chore|test|docs|style)(\[[a-zA-Z0-9_\-]+\])?: .+"
+          BRANCH_PATTERN = r"^(feat|fix|chore|refactor|test|docs|style)\/.+"
+
+          errors = []
+
+          print("🔍 DPYB 컨벤션 유효성 검사를 시작합니다...\n")
+
+          # 1. PR Title Check
+          if check_pr_title and pr_title:
+              print(f"📌 PR 제목 확인: '{pr_title}'")
+              if not re.match(TITLE_PATTERN, pr_title):
+                  errors.append(
+                      f"❌ PR 제목 형식 위반: '{pr_title}'\n"
+                      f"   - 올바른 형식: <타입>[적용범위]: <제목(명사형)>\n"
+                      f"   - 허용 타입: feat, fix, refactor, chore, test, docs, style\n"
+                      f"   - 적용범위: 대괄호 [scope] 형식만 허용 (소괄호 () 사용 불가)\n"
+                      f"   - 예시: feat[persona]: 핸드오프 요약 노드 추가"
+                  )
+              if pr_title.endswith("."):
+                  errors.append(f"❌ PR 제목 끝에 마침표(.)는 붙이지 않습니다: '{pr_title}'")
+
+          # 2. Branch Name Check
+          if check_branch and branch_name:
+              print(f"📌 브랜치명 확인: '{branch_name}'")
+              if not re.match(BRANCH_PATTERN, branch_name):
+                  errors.append(
+                      f"❌ 브랜치명 형식 위반: '{branch_name}'\n"
+                      f"   - 올바른 형식: 타입/한글-설명\n"
+                      f"   - 허용 타입: feat, fix, chore, refactor, test, docs, style ('feature/' 사용 불가)\n"
+                      f"   - 예시: feat/페르소나-핸드오프-그래프, fix/스크랩-널체크"
+                  )
+
+          # 3. Commit Messages Check
+          if check_commits and base_ref:
+              try:
+                  cmd = ["git", "log", f"origin/{base_ref}..HEAD", "--format=%s", "--no-merges"]
+                  output = subprocess.check_output(cmd, text=True).strip()
+                  commits = [c.strip() for c in output.splitlines() if c.strip()]
+                  print(f"📌 검사 대상 커밋 수: {len(commits)}개")
+                  for commit in commits:
+                      if commit.startswith("Merge ") or commit.startswith("Revert "):
+                          continue
+                      if not re.match(TITLE_PATTERN, commit):
+                          errors.append(
+                              f"❌ 커밋 메시지 형식 위반: '{commit}'\n"
+                              f"   - 올바른 형식: <타입>[적용범위]: <제목(명사형)>\n"
+                              f"   - 허용 타입: feat, fix, refactor, chore, test, docs, style\n"
+                              f"   - 적용범위: 대괄호 [scope] 형식만 허용 (소괄호 () 사용 불가)\n"
+                              f"   - 예시: feat[auth]: 카카오 로그인 토큰 검증 추가"
+                          )
+                      if commit.endswith("."):
+                          errors.append(f"❌ 커밋 메시지 끝에 마침표(.)는 붙이지 않습니다: '{commit}'")
+              except Exception as e:
+                  print(f"⚠️ 커밋 메시지 조회 중 경고 (무시됨): {e}")
+
+          if errors:
+              print("\n" + "=" * 60)
+              print("🚫 컨벤션 검사 실패!")
+              print("=" * 60)
+              for err in errors:
+                  print(f"\n{err}")
+              print("\n" + "=" * 60)
+              print(f"📖 DPYB Git 컨벤션 가이드: {CONVENTION_LINK}")
+              print("=" * 60 + "\n")
+              sys.exit(1)
+
+          print("\n✅ 모든 PR 및 커밋 컨벤션 검사를 통과했습니다!")
+          EOF

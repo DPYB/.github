@@ -1,0 +1,13 @@
+name: Lint PR & Commits
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  lint:
+    uses: ./.github/workflows/reusable-pr-lint.yml
+    with:
+      check-pr-title: true
+      check-branch-name: true
+      check-commits: true

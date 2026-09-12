@@ -11,7 +11,7 @@ DPYB 조직의 모든 레포에 공통으로 적용되는 기여 가이드입니
 
 ## 작업 흐름
 
-1. `develop`에서 브랜치를 딴다: `타입/한글-설명` (예: `feature/스크랩-검색-api`)
+1. `develop`에서 브랜치를 딴다: `타입/한글-설명` (예: `feat/스크랩-검색-api`)
 2. 로컬에서 `docker-compose`로 전체 스택을 띄워 동작을 먼저 확인한다.
 3. 커밋은 `<타입>[적용 범위]: <국문 제목>` 형식을 따른다.
 4. `develop`을 대상으로 PR을 연다. PR 템플릿의 체크리스트를 빠짐없이 확인한다.
@@ -19,4 +19,4 @@ DPYB 조직의 모든 레포에 공통으로 적용되는 기여 가이드입니
 
 ## 배포
 
-평소 작업은 `develop`에 머무르고, 배포 준비가 되면 `develop` → `main` 승격 PR을 연다. 자세한 내용은 [02-git-conventions.md](https://github.com/DPYB/.github/blob/main/docs/02-git-conventions.md)를 참고한다.
+평소 작업은 `develop`에 머무르고, 배포 준비가 되면 `develop` → `main` 승격 PR을 연다. 배포가 자동 트리거되므로 승격 머지는 반드시 사람이 직접 검토 후 수행한다. 자세한 내용은 [02-git-conventions.md](https://github.com/DPYB/.github/blob/main/docs/02-git-conventions.md)를 참고한다.

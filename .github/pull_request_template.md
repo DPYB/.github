@@ -25,8 +25,5 @@
 - [ ] `.harness/STATE.md` / `.harness/PLAN.md` / `.harness/HANDOFF.md` 갱신 (AI 바이브 코딩으로 작업한 경우 — [하네스 가이드](https://github.com/DPYB/.github/blob/main/docs/03-vibe-coding-harness.md) 참고)
 - [ ] `develop` 대상 PR인지 확인 (배포용 승격 PR만 `main` 대상)
 
-## 🖼️ 스크린샷 / 실행 결과 (선택)
-<!-- UI 변경이나 API 응답 예시가 있다면 첨부 -->
-
 ## 💬 리뷰어에게
 <!-- 특별히 봐줬으면 하는 부분, 고민되는 지점 등 -->

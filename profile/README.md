@@ -11,11 +11,11 @@ DPYB는 독서 중 남긴 문장과 메모를 개인화된 AI 사서와 함께 �
 |---|---|
 | [`frontend-reader-web`](https://github.com/DPYB/frontend-reader-web) | 독자용 웹 & PWA |
 | [`backend-auth-api`](https://github.com/DPYB/backend-auth-api) | 인증/인가 (로그인, JWT) |
-| [`backend-core-api`](https://github.com/DPYB/backend-core-api) | 핵심 비즈니스 로직 (회원, 책장, 스크랩 등 RDBMS CRUD) |
-| [`backend-ai-agent`](https://github.com/DPYB/backend-ai-agent) | AI 사서 & 개인화 RAG (LangGraph, Supabase pgvector) + isbn바코드스캔, 문장스크랩ocr |
+| [`backend-core-api`](https://github.com/DPYB/backend-core-api) | 핵심 비즈니스 로직 & DB 관리 (회원, 책장, 독서기록/스크랩 등 RDBMS CRUD) |
+| [`backend-ai-agent`](https://github.com/DPYB/backend-ai-agent) | AI 사서 & 개인화 RAG (LangGraph, Supabase pgvector) + 기록 기능 구현 (ISBN 바코드 스캔, 문장 스크랩 OCR) |
 
 모든 백엔드 레포는 Python + FastAPI로 통일되어 있습니다.
 
 ## 🛠️ 개발 규칙
 
-조직 전체 개발 규칙(네이밍, Git 컨벤션, AI 바이브 코딩 하네스, 배포 정책)은 이 레포([`.github`](https://github.com/DPYB/.github))의 [핸드북](../README.md)에서 관리합니다.
+조직 전체 개발 규칙(네이밍, Git 컨벤션, AI 바이브 코딩 하네스, 배포 정책)은 이 레포([`.github`](https://github.com/DPYB/.github))의 [핸드북](https://github.com/DPYB/.github/blob/main/README.md)에서 관리합니다.

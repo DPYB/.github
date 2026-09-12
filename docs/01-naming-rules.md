@@ -16,15 +16,14 @@
 - backend
   - `backend-auth-api`
   - `backend-core-api`
-  - `backend-record-api`
   - `backend-ai-agent`
 
 ## 브랜치 이름
 
-`{type}/{한글-설명}` 형태. `type`은 [02-git-conventions.md](./02-git-conventions.md)의 커밋 타입과 동일한 세트를 사용하고, 지라 같은 티켓 관리 도구를 쓰지 않으므로 설명 부분은 한글로 작성한다.
+`{type}/{한글-설명}` 형태. `type`은 [02-git-conventions.md](./02-git-conventions.md)의 커밋 타입(`feat`, `fix`, `chore`, `refactor` 등)과 동일한 축약형을 엄격히 사용하며(예: `feature/` 대신 `feat/`), 외부 티켓 관리 도구 대신 레포 내 `.harness/` 문서와 직관적인 한글 설명을 통해 작업 단위를 자체 식별한다.
 
 ```
-feature/페르소나-핸드오프-그래프
+feat/페르소나-핸드오프-그래프
 fix/스크랩벡터-널체크
 chore/pr템플릿-정리
 ```
@@ -39,7 +38,7 @@ chore/pr템플릿-정리
 | 상수 | `UPPER_SNAKE_CASE` | `MAX_SCRAP_RESULTS` |
 | 모듈/파일명 | `snake_case.py` | `rag_tool.py` |
 
-- 나머지 서버 레포는 전부 python + fast api
+- 모든 백엔드 레포는 Python 3.12 + FastAPI로 통일한다.
 
 ### TypeScript / React (`frontend-reader-web`)
 | 대상 | 컨벤션 | 예시 |
@@ -50,7 +49,7 @@ chore/pr템플릿-정리
 | 컴포넌트 파일명 | `PascalCase.tsx` | `BookshelfCard.tsx` |
 | 훅 파일명 | `useCamelCase.ts` | `useScrapList.ts` |
 
-- 프론트 아직 안정함 react, vite는 확정 아마 next.js쓸것 같음 
+- 프론트엔드는 Next.js (App Router, PWA) 스택을 사용한다.
 
 ## 환경 변수
 

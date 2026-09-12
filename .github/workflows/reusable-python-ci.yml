@@ -1,0 +1,96 @@
+name: Reusable Python CI
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        description: "Python version to use"
+        required: false
+        type: string
+        default: "3.12"
+      run-lint:
+        description: "Whether to run ruff linting"
+        required: false
+        type: boolean
+        default: true
+      run-format-check:
+        description: "Whether to check ruff formatting"
+        required: false
+        type: boolean
+        default: true
+      run-typecheck:
+        description: "Whether to run mypy typecheck"
+        required: false
+        type: boolean
+        default: true
+      run-tests:
+        description: "Whether to run pytest"
+        required: false
+        type: boolean
+        default: true
+      pytest-args:
+        description: "Additional arguments to pass to pytest"
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  ci:
+    name: Lint, Type Check & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Set up Python ${{ inputs.python-version }}
+        run: |
+          uv python install ${{ inputs.python-version }}
+
+      - name: Install Dependencies
+        run: |
+          if [ -f "uv.lock" ]; then
+            echo "Installing dependencies via uv sync..."
+            uv sync --frozen --all-extras || uv sync --all-extras || uv sync
+          elif [ -f "pyproject.toml" ]; then
+            echo "Installing dependencies via pyproject.toml..."
+            uv pip install -e ".[dev,test]" 2>/dev/null || uv pip install -e . 2>/dev/null || uv pip install -r pyproject.toml
+          elif [ -f "requirements.txt" ]; then
+            echo "Installing dependencies via requirements.txt..."
+            uv pip install -r requirements.txt
+            if [ -f "requirements-dev.txt" ]; then
+              uv pip install -r requirements-dev.txt
+            fi
+          fi
+          # Ensure quality tools are available
+          uv pip install ruff mypy pytest pytest-cov
+
+      - name: Lint with Ruff
+        if: ${{ inputs.run-lint }}
+        run: |
+          echo "Running ruff check..."
+          uv run ruff check .
+
+      - name: Format Check with Ruff
+        if: ${{ inputs.run-format-check }}
+        run: |
+          echo "Running ruff format --check..."
+          uv run ruff format --check .
+
+      - name: Type Check with Mypy
+        if: ${{ inputs.run-typecheck }}
+        run: |
+          echo "Running mypy..."
+          uv run mypy . --ignore-missing-imports
+
+      - name: Run Tests with Pytest
+        if: ${{ inputs.run-tests }}
+        run: |
+          echo "Running pytest..."
+          uv run pytest ${{ inputs.pytest-args }}
