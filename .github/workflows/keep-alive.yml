@@ -1,0 +1,52 @@
+name: Central Keep-Alive (Render & Supabase)
+
+on:
+  schedule:
+    # Render 무료 인스턴스(15분 무활동 슬립)와 Supabase(7일 무쿼리 슬립) 방지
+    # GitHub Actions cron 실행 지연(jitter)을 감안하여 10분 간격으로 안전하게 실행
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping-all-services:
+    name: Ping All Backend Services
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Service Health Endpoints
+        env:
+          CORE_API_URL: ${{ vars.CORE_API_URL || secrets.CORE_API_URL }}
+          AI_AGENT_URL: ${{ vars.AI_AGENT_URL || secrets.AI_AGENT_URL }}
+          AUTH_API_URL: ${{ vars.AUTH_API_URL || secrets.AUTH_API_URL }}
+        run: |
+          echo "⏰ Central Keep-Alive 핑 작업을 시작합니다..."
+          SERVICES=("CORE_API:$CORE_API_URL" "AI_AGENT:$AI_AGENT_URL" "AUTH_API:$AUTH_API_URL")
+
+          ANY_PINGED=false
+
+          for entry in "${SERVICES[@]}"; do
+            NAME="${entry%%:*}"
+            URL="${entry#*:}"
+
+            if [ -z "$URL" ]; then
+              echo "ℹ️  [$NAME] URL 미설정 (건너뜀 - Variables/Secrets에 등록 시 자동 활성화)"
+              continue
+            fi
+
+            ANY_PINGED=true
+            TARGET_URL="${URL%/}/health"
+            echo "🚀 [$NAME] 핑 요청: $TARGET_URL"
+
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 45 "$TARGET_URL" || echo "FAILED")
+            echo "   ㄴ 응답 상태 코드: $HTTP_STATUS"
+
+            if [ "$HTTP_STATUS" -eq 200 ]; then
+              echo "   ✅ [$NAME] 헬스체크 통과 (슬립 방지 완료)"
+            else
+              echo "   ⚠️ [$NAME] 비정상 응답 또는 콜드 스타트 중 (HTTP $HTTP_STATUS)"
+            fi
+          done
+
+          if [ "$ANY_PINGED" = false ]; then
+            echo "ℹ️  등록된 서비스 URL이 없습니다. 각 서비스 배포 완료 후 .github 레포의 Settings -> Secrets and variables -> Actions에 CORE_API_URL 등을 등록하세요."
+          fi
+          echo "🎉 Central Keep-Alive 작업 종료."

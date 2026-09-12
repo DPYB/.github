@@ -32,7 +32,7 @@
 | Render (무료 웹서비스) | 15분 무활동 | 약 30~60초 |
 | Supabase (무료 프로젝트) | 7일간 DB에 실제 쿼리 없음 (대시보드 방문은 포함 안 됨) | 약 30초 |
 
-**대응**: GitHub Actions로 15분 간격 헬스체크 크론을 구성해 Render의 `/health` 엔드포인트를 호출하고, 그 엔드포인트가 내부적으로 Supabase에 가벼운 쿼리를 한 번 날리도록 만들면 두 슬립 문제를 하나의 크론으로 동시에 방지할 수 있다.
+**대응**: 중앙 `.github` 레포지토리에서 10분 간격 크론(GitHub Actions 스케줄 큐 지연 대비)을 운영하여, 각 백엔드 서비스(`backend-core-api`, `backend-ai-agent`, `backend-auth-api`)의 `/health` 엔드포인트를 순회 핑한다([`.github/workflows/keep-alive.yml`](../.github/workflows/keep-alive.yml)). 또한 서비스들의 헬스체크 엔드포인트 중 적어도 하나(예: `core-api`)가 내부적으로 Supabase에 가벼운 쿼리(예: `SELECT 1`)를 날리도록 구성하면, Render 3개 서비스와 단일 Supabase DB의 슬립을 중앙 크론 하나로 동시에 방지할 수 있다.
 
 ## 레포별 세부 사항
 이 문서는 조직 공통 배포 원칙만 정의한다. 레포마다 실제로 어느 단계에 있는지, 구체적인 스키마/설정값은 각 레포 `.harness/ARCHITECTURE.md`에 기록한다.

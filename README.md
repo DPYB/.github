@@ -17,6 +17,7 @@ DPYB 조직의 모든 레포에 공통으로 적용되는 개발 규칙 모음�
 - **조직 프로필**: [`profile/README.md`](./profile/README.md)가 github.com/DPYB 조직 페이지에 표시됩니다.
 - **공통 CI 워크플로우**: [`.github/workflows/reusable-python-ci.yml`](./.github/workflows/reusable-python-ci.yml)을 통해 모든 백엔드 서비스 레포(`backend-*`)에서 Python 3.12 린트/타입체크/테스트를 원격 호출(`uses:`)하여 재사용합니다.
 - **공통 PR & 커밋 린터**: [`.github/workflows/reusable-pr-lint.yml`](./.github/workflows/reusable-pr-lint.yml)을 통해 모든 서비스 레포에서 PR 제목, 브랜치명, 커밋 메시지 컨벤션을 자동 검증합니다.
+- **중앙 킵얼라이브 크론**: [`.github/workflows/keep-alive.yml`](./.github/workflows/keep-alive.yml)을 통해 10분마다 백엔드 서비스들(`core-api`, `ai-agent`, `auth-api`)의 `/health`를 한 번에 핑하여 Render 웹서비스(15분) 및 Supabase(7일) 슬립을 중앙에서 방지합니다.
 
 ## 조직 내 다른 레포에 적용하는 방법
 
