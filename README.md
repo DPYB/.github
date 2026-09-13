@@ -59,8 +59,16 @@ jobs:
 
 ### 3. 브랜치 보호 규칙(Branch Protection Rule) 설정 (머지 강제 방지)
 
-> ⚠️ GitHub Actions 워크플로우는 검사 결과만 제공할 뿐, GitHub 저장소 설정에서 필수 체크로 등록하지 않으면 실패한 상태에서도 실수로 머지될 수 있습니다. 각 서비스 레포 생성 시 아래 설정을 필수로 활성화합니다.
+> ⚠️ GitHub Actions 워크플로우는 검사 결과만 제공할 뿐, 저장소 설정에서 필수 체크로 등록하지 않으면 실패한 상태에서도 실수로 머지될 수 있습니다. 각 서비스 레포 생성 시 아래 설정으로 보호를 활성화합니다.
 
+#### 방법 ① 스크립트로 1초 만에 설정 (권장)
+웹 UI에서 일일이 클릭할 필요 없이 제공되는 스크립트를 실행하면 `develop`(PR/CI 필수)과 `main`(PR/CI/1명 승인 필수) 규칙이 즉시 주입됩니다 (기존 커밋 히스토리는 유지되며, 멱등성이 보장되어 언제든 재실행 가능):
+```bash
+./.github/scripts/setup-branch-protection.sh <레포이름>
+# 예: ./.github/scripts/setup-branch-protection.sh backend-ai-agent
+```
+
+#### 방법 ② 웹 UI에서 직접 설정
 1. 대상 레포의 **Settings → Branches** (또는 Rulesets) 메뉴로 이동합니다.
 2. `Branch protection rules`에서 **Add rule**을 누르고 Branch name pattern에 `develop`과 `main`을 각각 등록합니다.
 3. 아래 핵심 보안/품질 옵션을 활성화합니다:
@@ -70,9 +78,9 @@ jobs:
      - **`main`**: 프로덕션 보호를 위해 **필수 활성화 (1명)**.
      - **`develop`**: 1~2인 소규모 개발 시 병목이 된다면 셀프 리뷰 습관 또는 보조 계정을 활용하고, 여건에 맞춰 선택 적용합니다.
    - **Require status checks to pass before merging**: 체크가 통과되어야만 머지 버튼 활성화.
-     - Status check 검색창에서 등록된 검사 Job 이름을 검색해 필수로 체크:
-       - `Validate PR & Commit Conventions` (PR 및 커밋 컨벤션 검사)
-       - `Lint, Type Check & Test` (백엔드 CI 테스트 및 린트)
+     - Status check 검색창에서 등록된 검사 Context 이름을 검색해 필수로 체크:
+       - `lint / Validate PR & Commit Conventions` (PR 및 커밋 컨벤션 검사)
+       - `ci / Lint, Type Check & Test` (백엔드 CI 테스트 및 린트)
    - **Require branches to be up to date before merging** (선택 권장): 베이스 브랜치(`develop`)가 자주 갱신될 때 계속 리베이스해야 하는 오버헤드가 있다면 소규모 팀 상황에 맞춰 유연하게 끄셔도 좋습니다.
 
 ### 4. 인간 개입 지점 (머지 권한)
