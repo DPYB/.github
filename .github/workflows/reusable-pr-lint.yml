@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: true
+      check-pr-body:
+        description: "Whether to validate PR body template convention"
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   validate:
@@ -32,11 +37,13 @@ jobs:
       - name: Validate Conventions
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
           BRANCH_NAME: ${{ github.head_ref }}
           BASE_REF: ${{ github.base_ref }}
           CHECK_PR_TITLE: ${{ inputs.check-pr-title }}
           CHECK_BRANCH: ${{ inputs.check-branch-name }}
           CHECK_COMMITS: ${{ inputs.check-commits }}
+          CHECK_PR_BODY: ${{ inputs.check-pr-body }}
         run: |
           python3 - << 'EOF'
           import os
@@ -45,11 +52,13 @@ jobs:
           import sys
 
           pr_title = os.environ.get("PR_TITLE", "").strip()
+          pr_body = os.environ.get("PR_BODY", "").strip()
           branch_name = os.environ.get("BRANCH_NAME", "").strip()
           base_ref = os.environ.get("BASE_REF", "").strip()
           check_pr_title = os.environ.get("CHECK_PR_TITLE", "true").lower() == "true"
           check_branch = os.environ.get("CHECK_BRANCH", "true").lower() == "true"
           check_commits = os.environ.get("CHECK_COMMITS", "true").lower() == "true"
+          check_pr_body = os.environ.get("CHECK_PR_BODY", "true").lower() == "true"
 
           CONVENTION_LINK = "https://github.com/DPYB/.github/blob/main/docs/02-git-conventions.md"
           TITLE_PATTERN = r"^(feat|fix|refactor|chore|test|docs|style)(\[[a-zA-Z0-9_\-]+\])?: .+"
@@ -106,6 +115,47 @@ jobs:
                           errors.append(f"❌ 커밋 메시지 끝에 마침표(.)는 붙이지 않습니다: '{commit}'")
               except Exception as e:
                   print(f"⚠️ 커밋 메시지 조회 중 경고 (무시됨): {e}")
+
+          # 4. PR Body Template Check
+          if check_pr_body:
+              print("📌 PR 본문(Body) 템플릿 준수 확인...")
+              if not pr_body or len(pr_body.strip()) < 30:
+                  errors.append(
+                      "❌ PR 본문(Description)이 비어있거나 너무 짧습니다 (최소 30자 이상 필요).\n"
+                      "   - DPYB Type B PR 템플릿에 맞춰 작업 내용과 체크리스트를 충실히 작성해주세요."
+                  )
+              else:
+                  # 필수 섹션 검사 (작업 요약, 적용 범위, 체크리스트)
+                  required_sections = [
+                      ("작업 요약", ["## 🎯 작업 요약", "작업 요약", "## 작업 요약"]),
+                      ("적용 범위", ["## 🌐 적용 범위", "적용 범위", "## 적용 범위"]),
+                      ("체크리스트", ["## ✅ 체크리스트", "체크리스트", "## 체크리스트"]),
+                  ]
+                  missing_sections = []
+                  for name, patterns in required_sections:
+                      if not any(pattern in pr_body for pattern in patterns):
+                          missing_sections.append(name)
+
+                  if missing_sections:
+                      errors.append(
+                          f"❌ PR 본문에 Type B 필수 섹션이 누락되었습니다: {missing_sections}\n"
+                          f"   - 필수 섹션: '## 🎯 작업 요약', '## 🌐 적용 범위', '## ✅ 체크리스트'\n"
+                          f"   - 템플릿 규격에 맞춰 누락된 섹션을 포함해주세요."
+                      )
+
+                  # 체크리스트 항목 완료 여부 검사 (최소 1개 이상 [x] 필수)
+                  if "- [x]" not in pr_body.lower() and "[x]" not in pr_body.lower():
+                      errors.append(
+                          "❌ PR 체크리스트 항목이 하나도 완료([x])되지 않았습니다.\n"
+                          "   - 로컬 검증 및 하네스 문서(STATE, PLAN, HANDOFF) 갱신을 완료한 뒤 체크박스(- [x])를 체크해주세요."
+                      )
+
+                  # 기본 템플릿 플레이스홀더 미작성 방치 검사
+                  if re.search(r"-\s*\*\*목적\*\*:\s*$", pr_body, re.MULTILINE) or re.search(r"-\s*\*\*주요 변경사항\*\*:\s*$", pr_body, re.MULTILINE):
+                      errors.append(
+                          "❌ PR 본문의 '목적' 또는 '주요 변경사항' 플레이스홀더가 비어있습니다.\n"
+                          "   - 실제 작업 목적과 변경 내용을 채워넣어주세요."
+                      )
 
           if errors:
               print("\n" + "=" * 60)
