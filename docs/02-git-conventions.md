@@ -60,6 +60,15 @@ Closes #12
 - 리뷰어가 없는 개인 작업이어도 PR 템플릿의 체크리스트는 생략하지 않는다.
 - 평소 PR은 `develop`, 배포용 승격 PR만 `main`을 대상으로 한다.
 
+### 머지 전략 (Squash & Merge 단일화 및 자동화)
+
+DPYB 조직의 모든 레포지토리는 불필요한 머지 커밋 남발을 방지하고 깔끔한 선형 히스토리를 유지하기 위해 **Squash and merge를 단일 머지 전략으로 강제**한다:
+- **머지 방식 단일화**: `Allow merge commits` 및 `Allow rebase merging`을 비활성화하고 `Squash and merge`만 허용.
+- **커밋 제목 자동 매핑 (`PR_TITLE`)**: 검증된 PR 제목(`타입[적용범위]: 요약`)이 머지 커밋의 제목으로 자동 반영.
+- **본문 기본 비우기 (`BLANK`)**: 자잘한 작업 커밋 로그가 본문(Extended description)에 덤프되지 않고 기본 빈칸으로 유지 (새로운 정보가 있을 때만 수동 작성).
+- **피처 브랜치 자동 삭제 (`delete_branch_on_merge`)**: 머지 완료 즉시 원격 피처 브랜치 자동 정리.
+- **인간 최종 확인 경험**: 개발자는 머지 시 커밋 메시지를 수동 복사/편집할 필요 없이, **내용 확인 후 [Confirm squash and merge] 클릭 1회**로 컨벤션을 완벽히 준수할 수 있다.
+
 ## 인간 개입 지점 (Human Checkpoint & 머지 권한)
 
 AI 에이전트(Codex, Antigravity, Claude Code, Kiro 등)와 협업할 때, **어디까지 에이전트가 자율적으로 수행하고 어디서부터 사람이 직접 개입해야 하는지**에 대한 명확한 경계를 둔다.

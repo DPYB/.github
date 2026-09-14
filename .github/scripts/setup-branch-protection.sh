@@ -2,15 +2,21 @@
 # ==============================================================================
 # setup-branch-protection.sh
 #
-# DPYB 서비스 레포지토리의 develop 및 main 브랜치 보호 규칙(Branch Protection)을
-# GitHub API(gh api -X PUT)를 통해 멱등성(Idempotent) 있게 설정하는 스크립트입니다.
+# DPYB 서비스 레포지토리의 머지 전략(Squash 단일화 & 메시지 자동화)과
+# develop 및 main 브랜치 보호 규칙(Branch Protection)을
+# GitHub API(gh api)를 통해 멱등성(Idempotent) 있게 일괄 설정하는 스크립트입니다.
 #
 # [주요 특징 및 안전성]
-# 1. 멱등성(Idempotent): gh api -X PUT 방식으로 동작하므로 여러 번 실행해도
+# 1. 머지 전략 자동화:
+#    - Squash and merge 단일화 (Merge commit, Rebase 비활성화)
+#    - PR 제목(`타입[적용범위]: 요약`)을 단일 커밋 제목으로 자동 매핑
+#    - 커밋 본문(Extended description)은 기본 빈칸으로 설정 (컨벤션 완벽 일치)
+#    - 머지 완료 시 피처 브랜치 자동 삭제 (Head branch auto deletion)
+# 2. 멱등성(Idempotent): gh api 방식으로 동작하므로 여러 번 실행해도
 #    기존 규칙을 안전하게 갱신(덮어쓰기)하며 중복 생성 부작용이 없습니다.
-# 2. 히스토리 보존: 이미 커밋/푸시가 진행된 레포에 실행해도 기존 git 히스토리에는
+# 3. 히스토리 보존: 이미 커밋/푸시가 진행된 레포에 실행해도 기존 git 히스토리에는
 #    일체 영향이 없으며, 설정 시점 이후의 PR 머지 및 브랜치 푸시부터 규제합니다.
-# 3. 필수 상태 검사 (Status Checks):
+# 4. 필수 상태 검사 (Status Checks):
 #    - PR & 커밋 컨벤션: "lint / Validate PR & Commit Conventions"
 #    - 백엔드 CI (린트/타입/테스트): "ci / Lint, Type Check & Test"
 #    ※ 실제 워크플로우 실행 시 등록되는 컨텍스트 이름과 100% 일치해야 합니다.
@@ -50,6 +56,23 @@ has_branch() {
   local target="$1"
   echo "$EXISTING_BRANCHES" | grep -qx "$target"
 }
+
+# 0. 레포지토리 전역 머지 전략 설정 (Squash 단일화 & 커밋 메시지 자동화)
+# - Allow merge commits: false (일반 머지 커밋 차단)
+# - Allow rebase merging: false (리베이스 머지 차단)
+# - Allow squash merging: true (Squash 머지만 허용)
+# - Squash commit title: PR_TITLE (PR 제목이 커밋 메시지 제목으로 자동 입력)
+# - Squash commit message: BLANK (Extended description 본문은 기본 빈칸)
+# - Automatically delete head branches: true (머지 완료 시 피처 브랜치 자동 삭제)
+echo "⚙️  레포지토리 전역 머지 전략을 설정합니다..."
+gh api -X PATCH "repos/${FULL_REPO}" \
+  -F allow_merge_commit=false \
+  -F allow_rebase_merge=false \
+  -F allow_squash_merge=true \
+  -F squash_merge_commit_title="PR_TITLE" \
+  -F squash_merge_commit_message="BLANK" \
+  -F delete_branch_on_merge=true >/dev/null
+echo "✅ 레포지토리 머지 전략 (Squash 단일화, PR 제목/빈칸 기본값, 브랜치 자동 삭제) 설정 완료!"
 
 # 1. develop 브랜치 보호 규칙 설정
 # - PR 필수 (직접 푸시 차단)
