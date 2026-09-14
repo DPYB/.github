@@ -6,7 +6,7 @@
 
 | 역할 | 접두사 | 예시 |
 |---|---|---|
-| 백엔드 서비스 | `backend-` | `backend-auth-api`, `backend-core-api`, `backend-ai-agent` |
+| 백엔드 서비스 | `backend-` | `backend-core-api`, `backend-ai-agent` |
 | 프론트엔드 | `frontend-` | `frontend-reader-web` |
 | 조직 공용 | (접두사 없음) | `.github` |
 
@@ -14,7 +14,6 @@
 - frontend
   - `frontend-reader-web`
 - backend
-  - `backend-auth-api`
   - `backend-core-api`
   - `backend-ai-agent`
 

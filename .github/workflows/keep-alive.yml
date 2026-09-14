@@ -16,10 +16,9 @@ jobs:
         env:
           CORE_API_URL: ${{ vars.CORE_API_URL || secrets.CORE_API_URL }}
           AI_AGENT_URL: ${{ vars.AI_AGENT_URL || secrets.AI_AGENT_URL }}
-          AUTH_API_URL: ${{ vars.AUTH_API_URL || secrets.AUTH_API_URL }}
         run: |
           echo "⏰ Central Keep-Alive 핑 작업을 시작합니다..."
-          SERVICES=("CORE_API:$CORE_API_URL" "AI_AGENT:$AI_AGENT_URL" "AUTH_API:$AUTH_API_URL")
+          SERVICES=("CORE_API:$CORE_API_URL" "AI_AGENT:$AI_AGENT_URL")
 
           ANY_PINGED=false
 
