@@ -1,0 +1,3 @@
+# AI Context Ignore (에이전트 시야 차단)
+# 아카이브 및 롤백용 백업 문서 (에이전트 컨텍스트 오염 방지)
+docs/archive/**
