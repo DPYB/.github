@@ -2,9 +2,10 @@ name: Central Keep-Alive (Render & Supabase)
 
 on:
   schedule:
-    # Render 무료 인스턴스(15분 무활동 슬립)와 Supabase(7일 무쿼리 슬립) 방지
-    # GitHub Actions cron 실행 지연(jitter)을 감안하여 10분 간격으로 안전하게 실행
-    - cron: '*/10 * * * *'
+    # 한국 시간(KST) 08:00 ~ 19:00 (UTC 전날 23:00 ~ 당일 10:00) 10분 간격 실행
+    # Render 무료 티어(월 750시간) 한도 보호: 일 11시간 가동 -> 월 약 697시간 소모로 2개 서비스 동시 무과금 안정 운영
+    - cron: "*/10 23 * * *"
+    - cron: "*/10 0-10 * * *"
   workflow_dispatch:
 
 jobs:
