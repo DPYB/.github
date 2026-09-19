@@ -48,7 +48,7 @@ chore/pr템플릿-정리
 | 컴포넌트 파일명 | `PascalCase.tsx` | `BookshelfCard.tsx` |
 | 훅 파일명 | `useCamelCase.ts` | `useScrapList.ts` |
 
-- 프론트엔드는 Next.js (App Router, PWA) 스택을 사용한다.
+- 프론트엔드는 React 19 + Vite 기반 SPA 스택을 사용하며, JavaScript에서 TypeScript로 점진적 마이그레이션을 진행한다.
 
 ## 환경 변수
 
