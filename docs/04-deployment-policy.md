@@ -17,6 +17,7 @@
 ## 3단계 — GCP 무료 크레딧 폴백
 - Render 무료 티어 한도(512MB RAM, 콜드스타트 지연 등)에 걸릴 경우에만 Google Cloud Run으로 전환.
 - Cloud Run은 유휴 시 인스턴스 0개(Scale-to-Zero)로 크레딧 소비를 최소화한다.
+- 상세한 클라우드 전환 절차 및 GitHub Actions 자동 배포 파이프라인 명세는 [05-cloud-migration-guide.md](./05-cloud-migration-guide.md)를 참조한다.
 
 ## 공통 기술 요구사항
 - **동적 포트 바인딩**: Dockerfile은 `$PORT` 환경변수를 바인딩해 Render와 Cloud Run 양쪽에서 코드 수정 없이 동일하게 동작하도록 유지한다.
