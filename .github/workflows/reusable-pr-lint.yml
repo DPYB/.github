@@ -61,8 +61,8 @@ jobs:
           check_pr_body = os.environ.get("CHECK_PR_BODY", "true").lower() == "true"
 
           CONVENTION_LINK = "https://github.com/DPYB/.github/blob/main/docs/02-git-conventions.md"
-          TITLE_PATTERN = r"^(feat|fix|refactor|chore|test|docs|style)(\[[a-zA-Z0-9_\-]+\])?: .+"
-          BRANCH_PATTERN = r"^(feat|fix|chore|refactor|test|docs|style)\/.+"
+          TITLE_PATTERN = r"^(feat|fix|refactor|chore|test|docs|style|ci|cd)(\[[a-zA-Z0-9_\-]+\])?: .+"
+          BRANCH_PATTERN = r"^(feat|fix|chore|refactor|test|docs|style|ci|cd)\/.+"
 
           errors = []
 
@@ -75,7 +75,7 @@ jobs:
                   errors.append(
                       f"❌ PR 제목 형식 위반: '{pr_title}'\n"
                       f"   - 올바른 형식: <타입>[적용범위]: <제목(명사형)>\n"
-                      f"   - 허용 타입: feat, fix, refactor, chore, test, docs, style\n"
+                      f"   - 허용 타입: feat, fix, refactor, chore, test, docs, style, ci, cd\n"
                       f"   - 적용범위: 대괄호 [scope] 형식만 허용 (소괄호 () 사용 불가)\n"
                       f"   - 예시: feat[persona]: 핸드오프 요약 노드 추가"
                   )
@@ -89,7 +89,7 @@ jobs:
                   errors.append(
                       f"❌ 브랜치명 형식 위반: '{branch_name}'\n"
                       f"   - 올바른 형식: 타입/한글-설명\n"
-                      f"   - 허용 타입: feat, fix, chore, refactor, test, docs, style ('feature/' 사용 불가)\n"
+                      f"   - 허용 타입: feat, fix, chore, refactor, test, docs, style, ci, cd ('feature/' 사용 불가)\n"
                       f"   - 예시: feat/페르소나-핸드오프-그래프, fix/스크랩-널체크"
                   )
 
@@ -107,7 +107,7 @@ jobs:
                           errors.append(
                               f"❌ 커밋 메시지 형식 위반: '{commit}'\n"
                               f"   - 올바른 형식: <타입>[적용범위]: <제목(명사형)>\n"
-                              f"   - 허용 타입: feat, fix, refactor, chore, test, docs, style\n"
+                              f"   - 허용 타입: feat, fix, refactor, chore, test, docs, style, ci, cd\n"
                               f"   - 적용범위: 대괄호 [scope] 형식만 허용 (소괄호 () 사용 불가)\n"
                               f"   - 예시: feat[auth]: 카카오 로그인 토큰 검증 추가"
                           )
