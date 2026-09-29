@@ -61,7 +61,7 @@ jobs:
           check_pr_body = os.environ.get("CHECK_PR_BODY", "true").lower() == "true"
 
           CONVENTION_LINK = "https://github.com/DPYB/.github/blob/main/docs/02-git-conventions.md"
-          TITLE_PATTERN = r"^(feat|fix|refactor|chore|test|docs|style|ci|cd)(\[[a-zA-Z0-9_\-]+\])?: .+"
+          TITLE_PATTERN = r"^(feat|fix|refactor|chore|test|docs|style|ci|cd)(?:\[[a-zA-Z0-9_\-]+\]|\([a-zA-Z0-9_\-]+\))?:\s+.+"
           BRANCH_PATTERN = r"^(feat|fix|chore|refactor|test|docs|style|ci|cd)\/.+"
 
           errors = []
@@ -74,13 +74,11 @@ jobs:
               if not re.match(TITLE_PATTERN, pr_title):
                   errors.append(
                       f"❌ PR 제목 형식 위반: '{pr_title}'\n"
-                      f"   - 올바른 형식: <타입>[적용범위]: <제목(명사형)>\n"
+                      f"   - 올바른 형식: <타입>[적용범위]: <제목> 또는 <타입>(적용범위): <제목>\n"
                       f"   - 허용 타입: feat, fix, refactor, chore, test, docs, style, ci, cd\n"
-                      f"   - 적용범위: 대괄호 [scope] 형식만 허용 (소괄호 () 사용 불가)\n"
-                      f"   - 예시: feat[persona]: 핸드오프 요약 노드 추가"
+                      f"   - 적용범위: [scope] 또는 (scope) 형식 (선택 사항)\n"
+                      f"   - 예시: feat[persona]: 핸드오프 요약 노드 추가, feat(auth): 카카오 로그인 연동"
                   )
-              if pr_title.endswith("."):
-                  errors.append(f"❌ PR 제목 끝에 마침표(.)는 붙이지 않습니다: '{pr_title}'")
 
           # 2. Branch Name Check
           if check_branch and branch_name:
@@ -88,9 +86,9 @@ jobs:
               if not re.match(BRANCH_PATTERN, branch_name):
                   errors.append(
                       f"❌ 브랜치명 형식 위반: '{branch_name}'\n"
-                      f"   - 올바른 형식: 타입/한글-설명\n"
+                      f"   - 올바른 형식: 타입/설명 (영문 또는 한글)\n"
                       f"   - 허용 타입: feat, fix, chore, refactor, test, docs, style, ci, cd ('feature/' 사용 불가)\n"
-                      f"   - 예시: feat/페르소나-핸드오프-그래프, fix/스크랩-널체크"
+                      f"   - 예시: feat/auth-kakao, feat/페르소나-핸드오프"
                   )
 
           # 3. Commit Messages Check
@@ -106,13 +104,11 @@ jobs:
                       if not re.match(TITLE_PATTERN, commit):
                           errors.append(
                               f"❌ 커밋 메시지 형식 위반: '{commit}'\n"
-                              f"   - 올바른 형식: <타입>[적용범위]: <제목(명사형)>\n"
+                              f"   - 올바른 형식: <타입>[적용범위]: <제목> 또는 <타입>(적용범위): <제목>\n"
                               f"   - 허용 타입: feat, fix, refactor, chore, test, docs, style, ci, cd\n"
-                              f"   - 적용범위: 대괄호 [scope] 형식만 허용 (소괄호 () 사용 불가)\n"
-                              f"   - 예시: feat[auth]: 카카오 로그인 토큰 검증 추가"
+                              f"   - 적용범위: [scope] 또는 (scope) 형식 (선택 사항)\n"
+                              f"   - 예시: feat[auth]: 카카오 로그인 토큰 검증 추가, fix(db): 연결 풀 타임아웃 수정"
                           )
-                      if commit.endswith("."):
-                          errors.append(f"❌ 커밋 메시지 끝에 마침표(.)는 붙이지 않습니다: '{commit}'")
               except Exception as e:
                   print(f"⚠️ 커밋 메시지 조회 중 경고 (무시됨): {e}")
 
@@ -171,21 +167,7 @@ jobs:
                           "   - 실제 작업 목적과 변경 내용을 채워넣어주세요."
                       )
 
-                  # 고려사항 & 리뷰 포인트 내용 검사
-                  consideration_match = re.search(
-                      r"(?:##\s*💬\s*고려사항\s*&\s*리뷰\s*포인트|##\s*고려사항[^\n]*)([\s\S]*?)(?=##|\Z)",
-                      pr_body,
-                  )
-                  if consideration_match:
-                      content = consideration_match.group(1)
-                      cleaned_content = re.sub(r"<!--[\s\S]*?-->", "", content).strip()
-                      cleaned_text = re.sub(r"^[-*]\s*$", "", cleaned_content, flags=re.MULTILINE).strip()
-                      if not cleaned_text:
-                          errors.append(
-                              "❌ PR 본문의 '고려사항 & 리뷰 포인트' 섹션 내용이 비어있습니다.\n"
-                              "   - 바이브 코딩 시 고민한 트레이드오프나 리뷰 포인트를 작성해주세요.\n"
-                              "   - 특별한 고려사항이 없는 경우 '해당 없음' 또는 '특이사항 없음'을 기재해주세요."
-                          )
+                  # 고려사항 & 리뷰 포인트 섹션: 내용이 비어있어도 통과 (단순 작업이나 고려사항 부재 시 에러 차단)
 
           if errors:
               print("\n" + "=" * 60)
