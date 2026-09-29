@@ -151,10 +151,23 @@ jobs:
                           "   - 로컬 검증 및 하네스 문서(STATE, PLAN, HANDOFF) 갱신을 완료한 뒤 체크박스(- [x])를 체크해주세요."
                       )
 
-                  # 기본 템플릿 플레이스홀더 미작성 방치 검사
-                  if re.search(r"-\s*\*\*목적\*\*:\s*$", pr_body, re.MULTILINE) or re.search(r"-\s*\*\*주요 변경사항\*\*:\s*$", pr_body, re.MULTILINE):
+                  # 기본 템플릿 플레이스홀더 미작성 방치 검사 (같은 줄 또는 다음 줄 개행 작성 모두 허용)
+                  def get_bullet_content(field_name: str, text: str) -> str:
+                      pattern = rf"-\s*\*\*{re.escape(field_name)}\*\*:\s*([\s\S]*?)(?=(?:^\s*[-*#]|\Z))"
+                      m = re.search(pattern, text, re.MULTILINE)
+                      return m.group(1).strip() if m else ""
+
+                  purpose_text = get_bullet_content("목적", pr_body)
+                  changes_text = get_bullet_content("주요 변경사항", pr_body)
+
+                  if not purpose_text or not changes_text:
                       errors.append(
-                          "❌ PR 본문의 '목적' 또는 '주요 변경사항' 플레이스홀더가 비어있습니다.\n"
+                          "❌ PR 본문의 '목적' 또는 '주요 변경사항' 내용이 비어있습니다.\n"
+                          "   - 실제 작업 목적과 변경 내용을 채워넣어주세요 (같은 줄 또는 다음 줄 개행 작성 가능)."
+                      )
+                  elif purpose_text in ["[작업 목적 한 줄 요약]", "[작업 목적]"] or changes_text in ["[주요 변경사항 한 줄 요약]", "[주요 변경사항]"]:
+                      errors.append(
+                          "❌ PR 본문의 '목적' 또는 '주요 변경사항' 기본 플레이스홀더가 수정되지 않고 그대로 남아있습니다.\n"
                           "   - 실제 작업 목적과 변경 내용을 채워넣어주세요."
                       )
 
