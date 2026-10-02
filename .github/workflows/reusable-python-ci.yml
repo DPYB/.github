@@ -71,6 +71,13 @@ jobs:
           # Ensure quality tools are available
           uv pip install ruff mypy pytest pytest-cov
 
+      - name: Validate Harness Specifications
+        run: |
+          if [ -f "scripts/check_harness.py" ]; then
+            echo "Running harness check..."
+            python3 scripts/check_harness.py
+          fi
+
       - name: Lint with Ruff
         if: ${{ inputs.run-lint }}
         run: |
